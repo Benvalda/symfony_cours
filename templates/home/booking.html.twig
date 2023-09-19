@@ -1,0 +1,56 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{% endblock %}
+
+{% block body %}
+
+    <a class='btn btn-primary' href="{{ path('app_seller_booking', {id:seller.id, week: currentWeek-1 }) }}">Semaine précédente</a>
+    <a href="{{ path('app_seller_booking', {id:seller.id, week: currentWeek+1 }) }}">Semaine suivante</a>
+    {{ seller.title }}
+
+    <table id="timeSlots" class="table table-bordered" style="margin-top: 20px">
+        <thead>
+        <tr>
+            <th>Heure</th>
+            {% for date in weekDates %}
+                <th>{{ date }}</th>
+            {% endfor %}
+        </tr>
+        </thead>
+        <tbody>
+        {% for time in weekSlots.times %}
+            <tr>
+                <td>{{ time }}</td>
+                {% for day in weekSlots.days %}
+                    {% set isBooked = bookedSlots[day][time] ?? false %}
+                    <td class="{{ isBooked ? 'booked-with-stripe' : 'available' }}"
+                            {% if not isBooked %}
+                                data-bs-toggle="modal" data-bs-target="#exampleModal" data-day="{{ day }}" data-time="{{ time }}"
+                            {% endif %}
+                    >
+                        &nbsp;
+                    </td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Rendez-vous avec le vendeur {{ seller.title }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                {{ form_start(form) }}
+                <div class="modal-body">
+                    {{ form_widget(form) }}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary">Prendre rendez-vous</button>
+                </div>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}
