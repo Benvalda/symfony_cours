@@ -1,0 +1,27 @@
+{% extends "base.html.twig" %}
+
+{% block body %}
+
+    <a href="{{ path("app_post") }}">Revenir aux posts</a>
+    <h1>{{ post.titre }}</h1>
+    <img src="{{ vich_uploader_asset(post) }}" class="card-img-top" alt="{{ post.image }}">
+    {{ post.contenu | raw }}
+
+    <section class="com m-5">
+        {% for comment in post.comments %}
+            <p>{{ comment.subject }}</p>
+            <p>{{ comment.content }}</p>
+        {% endfor %}
+
+        {% if app.user is defined and app.user is not null %}
+            {{ form_start(form) }}
+            {{ form_widget(form) }}
+            <button class="btn bg-primary text-light">Commenter</button>
+        {% else %}
+            <a href="{{ path("app_login") }}">Connectez-vous pour commenter</a>
+        {% endif %}
+    </section>
+
+
+
+{% endblock %}

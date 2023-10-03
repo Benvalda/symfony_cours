@@ -1,0 +1,27 @@
+{% extends "base.html.twig" %}
+
+{% block body %}
+    <style>
+        .grille{
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            margin: auto;
+        }
+    </style>
+
+    <h1>Bienvenue dans ma page de post</h1>
+    <a href="{{ path("app_home") }}">Revenir à l'acceuil</a>
+    <div class="grille">
+        {% for post in posts %}
+            <div class="card" style="width: 18rem;">
+                <img src="{{ vich_uploader_asset(post) }}" class="card-img-top" alt="{{ post.image }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ post.titre }}</h5>
+                    <p class="card-text">{{ post.contenu | raw}}</p>
+                    <a href="{{ path('app_post_detail', {id:post.id, slug:post.slug}) }}" class="btn btn-primary">Lire</a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+{% endblock %}
