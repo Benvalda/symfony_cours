@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Booking;
 use App\Entity\Comment;
+use App\Entity\Like;
 use App\Entity\Post;
 use App\Form\BookingType;
 use App\Form\CommentType;
@@ -110,11 +111,16 @@ class HomeController extends AbstractController
     }
 
     #[Route("/posts/{id}-{slug}", name: "app_post_detail")]
-    public function postDetail(Post $post, $id, $slug, Request $request, EntityManagerInterface $entityManager,): Response
+    public function postDetail(Post $post, $id, $slug, Request $request, EntityManagerInterface $entityManager): Response
     {
         $comment = new Comment();
         $form = $this->createForm(CommentType::class, $comment);
         $form->handleRequest($request);
+
+        $likes = $comment->getLikes();
+        $likes_nb = $likes->count();
+        $like_true = $likes->filter(fn($value) => $value == true)->count();
+        $like_false = $likes->filter(fn($value) => $value == false)->count();
 
         if ($form->isSubmitted() && $form->isValid()) {
             $comment->setAuthor($this->getUser())
@@ -132,7 +138,27 @@ class HomeController extends AbstractController
         return $this->render("home/postDetail.html.twig", [
             "post" => $post,
             "form" => $form->createView(),
-            "comment" => $comment
+            "comment" => $comment,
+            "likes" => $likes_nb
         ]);
     }
+
+    #[Route("/posts/{id}-{slug}/like/{bool}", name: "app_post_like")]
+    public function Like($id, $slug, $bool, Comment $comment, Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $like = new Like();
+
+        $like->setUser($this->getUser())
+            ->setLiked($bool == "true" ? true : false)
+            ->setComment($comment);
+
+        $entityManager->persist($like);
+        $entityManager->flush($like);
+
+        return $this->redirectToRoute('app_post_detail', [
+            'id' => $id,
+            'slug' => $slug
+        ]);
+    }
+
 }
